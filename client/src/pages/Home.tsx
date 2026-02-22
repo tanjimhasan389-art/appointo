@@ -256,133 +256,286 @@ const Home: React.FC = () => {
     { icon: <CheckIcon />, title: 'Easy check-in', description: 'QR code or manual' },
   ];
 
+  // Texture animation ref
+  const textureRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    let x = 0;
+    let y = 0;
+    let animationFrame: number;
+
+    const animate = () => {
+      x += 0.05; // slow horizontal movement
+      y += 0.03; // slow vertical movement
+
+      if (textureRef.current) {
+        textureRef.current.style.backgroundPosition = `${x}px ${y}px`;
+      }
+
+      animationFrame = requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    return () => cancelAnimationFrame(animationFrame);
+  }, []);
+
   return (
-    <Box sx={{ bgcolor: colors.background }}>
-      {/* Hero Section – no reveal */}
+    <Box sx={{ position: 'relative', minHeight: '100vh', overflow: 'hidden' }}>
+      {/* ================= MOVING PREMIUM BACKGROUND ================= */}
+      <Box sx={{ position: 'absolute', inset: 0, zIndex: -10 }}>
+        {/* Soft Gradient Base */}
+        <Box
+          sx={{
+            position: 'absolute',
+            inset: 0,
+            background: 'linear-gradient(135deg, #ffffff 0%, #f6faff 50%, #ffffff 100%)',
+          }}
+        />
+
+        {/* MOVING TEXTURE */}
+        <Box
+          ref={textureRef}
+          sx={{
+            position: 'absolute',
+            inset: 0,
+            opacity: 0.06,
+            backgroundImage: 'url("/texture.png")',
+            backgroundRepeat: 'repeat',
+            backgroundSize: '600px',
+          }}
+        />
+
+        {/* Ultra Subtle Grain */}
+        <Box
+          sx={{
+            position: 'absolute',
+            inset: 0,
+            pointerEvents: 'none',
+            backgroundImage:
+              'url("https://www.transparenttextures.com/patterns/noise.png")',
+            opacity: 0.03,
+          }}
+        />
+      </Box>
+
+      {/* ========== COLLECTION GRADIENT HERO – MOVING, LIVE ========== */}
       <Box
         sx={{
-          background: `linear-gradient(135deg, ${colors.backgroundAlt} 0%, ${colors.backgroundLight} 100%)`,
+          position: 'relative',
+          overflow: 'hidden',
           pt: { xs: 8, md: 12 },
           pb: { xs: 8, md: 12 },
           mb: 6,
         }}
       >
-        <Container maxWidth="lg">
+        {/* Animated gradient background – inspired by Collection Gradient */}
+        <Box
+          sx={{
+            position: 'absolute',
+            inset: 0,
+            background: 'linear-gradient(125deg, #f0f5ff, #e6f0ff, #f9f0ff, #ffffff, #d9e8ff, #f5f0ff)',
+            backgroundSize: '400% 400%',
+            animation: 'gradientFlow 20s ease infinite',
+            zIndex: 0,
+          }}
+        />
+
+        {/* Soft radial glow for depth */}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '20%',
+            right: '5%',
+            width: '50vw',
+            height: '50vw',
+            borderRadius: '50%',
+            background: `radial-gradient(circle, ${alpha(colors.primary, 0.15)} 0%, transparent 70%)`,
+            filter: 'blur(100px)',
+            animation: 'pulseGlow 10s ease-in-out infinite',
+            zIndex: 0,
+          }}
+        />
+
+        {/* Extra floating blurred circles */}
+        <Box
+          sx={{
+            position: 'absolute',
+            bottom: '10%',
+            left: '10%',
+            width: '400px',
+            height: '400px',
+            borderRadius: '50%',
+            background: alpha(colors.accent, 0.08),
+            filter: 'blur(80px)',
+            animation: 'float 18s ease-in-out infinite',
+            zIndex: 0,
+          }}
+        />
+
+        <Container maxWidth="lg" sx={{ position: 'relative', zIndex: 1 }}>
           <Grid container spacing={4} alignItems="center">
             <Grid item xs={12} md={7} lg={8}>
-              <Typography variant="h2" sx={{ fontWeight: 700, color: colors.textPrimary, mb: 2 }}>
+              {/* Headline with fade-up */}
+              <Typography
+                variant="h2"
+                sx={{
+                  fontWeight: 700,
+                  color: colors.textPrimary,
+                  mb: 2,
+                  animation: 'fadeUp 0.8s ease-out forwards',
+                  opacity: 0,
+                  transform: 'translateY(30px)',
+                }}
+              >
                 {originalHero.headline}
               </Typography>
-              <Typography variant="h5" sx={{ color: colors.textSecondary, mb: 4, minHeight: '4.5rem', fontWeight: 400, lineHeight: 1.6 }}>
+              {/* Subheadline with fade-up (delayed) */}
+              <Typography
+                variant="h5"
+                sx={{
+                  color: colors.textSecondary,
+                  mb: 4,
+                  minHeight: '4.5rem',
+                  fontWeight: 400,
+                  lineHeight: 1.6,
+                  animation: 'fadeUp 0.8s ease-out 0.2s forwards',
+                  opacity: 0,
+                  transform: 'translateY(30px)',
+                }}
+              >
                 {typedSubtext}
-                <Box component="span" sx={{ display: 'inline-block', width: '2px', height: '1.2em', backgroundColor: colors.primary, ml: 0.5, animation: 'blink 1s step-end infinite' }} />
+                <Box
+                  component="span"
+                  sx={{
+                    display: 'inline-block',
+                    width: '2px',
+                    height: '1.2em',
+                    backgroundColor: colors.primary,
+                    ml: 0.5,
+                    animation: 'blink 1s step-end infinite',
+                  }}
+                />
               </Typography>
 
-              {/* Side-by-side buttons */}
+              {/* Side-by-side buttons with fade-up (sequential) */}
               <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
-                <HoverGlow borderRadius={radius.button} color={colors.primary} lift sx={{ width: 'auto' }}>
-                  <Button
-                    component={RouterLink}
-                    to="/services"
-                    variant="contained"
-                    size="large"
-                    startIcon={<CalendarIcon />}
-                    disableRipple
-                    sx={{
-                      bgcolor: colors.primary,
-                      borderRadius: radius.button,
-                      px: 4,
-                      py: 1.5,
-                      fontWeight: 600,
-                      width: '100%',
-                      overflow: 'hidden',
-                      '&:hover': {
-                        bgcolor: colors.primaryDark,
-                      },
-                    }}
-                  >
-                    Book an Appointment
-                  </Button>
-                </HoverGlow>
+                <Box sx={{ animation: 'fadeUp 0.8s ease-out 0.4s forwards', opacity: 0, transform: 'translateY(30px)' }}>
+                  <HoverGlow borderRadius={radius.button} color={colors.primary} lift sx={{ width: 'auto' }}>
+                    <Button
+                      component={RouterLink}
+                      to="/services"
+                      variant="contained"
+                      size="large"
+                      startIcon={<CalendarIcon />}
+                      disableRipple
+                      sx={{
+                        bgcolor: colors.primary,
+                        borderRadius: radius.button,
+                        px: 4,
+                        py: 1.5,
+                        fontWeight: 600,
+                        width: '100%',
+                        overflow: 'hidden',
+                        '&:hover': {
+                          bgcolor: colors.primaryDark,
+                        },
+                      }}
+                    >
+                      Book an Appointment
+                    </Button>
+                  </HoverGlow>
+                </Box>
 
-                {/* Join as Professional – opens register modal */}
-                <HoverGlow borderRadius={radius.button} color={colors.primary} lift sx={{ width: 'auto' }}>
-                  <Button
-                    variant="outlined"
-                    size="large"
-                    startIcon={<PersonIcon />}
-                    onClick={() => setOpenRegister(true)}
-                    disableRipple
-                    sx={{
-                      borderColor: colors.primary,
-                      color: colors.primary,
-                      borderRadius: radius.button,
-                      px: 4,
-                      py: 1.5,
-                      fontWeight: 600,
-                      width: '100%',
-                      overflow: 'hidden',
-                      '&:hover': {
-                        borderColor: colors.primaryDark,
-                        bgcolor: alpha(colors.primary, 0.04),
-                      },
-                    }}
-                  >
-                    Join as Professional
-                  </Button>
-                </HoverGlow>
+                <Box sx={{ animation: 'fadeUp 0.8s ease-out 0.6s forwards', opacity: 0, transform: 'translateY(30px)' }}>
+                  <HoverGlow borderRadius={radius.button} color={colors.primary} lift sx={{ width: 'auto' }}>
+                    <Button
+                      variant="outlined"
+                      size="large"
+                      startIcon={<PersonIcon />}
+                      onClick={() => setOpenRegister(true)}
+                      disableRipple
+                      sx={{
+                        borderColor: colors.primary,
+                        color: colors.primary,
+                        borderRadius: radius.button,
+                        px: 4,
+                        py: 1.5,
+                        fontWeight: 600,
+                        width: '100%',
+                        overflow: 'hidden',
+                        '&:hover': {
+                          borderColor: colors.primaryDark,
+                          bgcolor: alpha(colors.primary, 0.04),
+                        },
+                      }}
+                    >
+                      Join as Professional
+                    </Button>
+                  </HoverGlow>
+                </Box>
               </Box>
             </Grid>
 
-            {/* Right column – animated card */}
+            {/* Right column – animated card with slide-in */}
             <Grid item xs={12} md={5} lg={4}>
-              <HoverGlow borderRadius={radius.card} color={colors.primary} lift>
-                <Paper
-                  elevation={2}
-                  sx={{
-                    p: 3,
-                    borderRadius: radius.card,
-                    bgcolor: 'white',
-                    border: `1px solid ${colors.border}`,
-                    animation: 'float 6s ease-in-out infinite',
-                  }}
-                >
-                  <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                    <CalendarIcon sx={{ mr: 1, fontSize: 28, color: colors.primary }} />
-                    <Typography variant="h6" fontWeight={600} color={colors.textPrimary}>
-                      Upcoming Appointments
-                    </Typography>
-                  </Box>
-                  <Grid container spacing={2}>
-                    {[1, 2, 3].map((i) => (
-                      <Grid item xs={12} key={i}>
-                        <Paper
-                          sx={{
-                            p: 2,
-                            bgcolor: colors.backgroundAlt,
-                            borderRadius: radius.card / 2,
-                            border: `1px solid ${colors.border}`,
-                          }}
-                        >
-                          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <Typography variant="subtitle2" fontWeight={600} color={colors.textPrimary}>
-                              Consultation {i}
+              <Box
+                sx={{
+                  animation: 'slideIn 1s ease-out 0.2s forwards',
+                  opacity: 0,
+                  transform: 'translateX(40px)',
+                }}
+              >
+                <HoverGlow borderRadius={radius.card} color={colors.primary} lift>
+                  <Paper
+                    elevation={2}
+                    sx={{
+                      p: 3,
+                      borderRadius: radius.card,
+                      bgcolor: 'white',
+                      border: `1px solid ${colors.border}`,
+                      animation: 'float 6s ease-in-out infinite',
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
+                      <CalendarIcon sx={{ mr: 1, fontSize: 28, color: colors.primary }} />
+                      <Typography variant="h6" fontWeight={600} color={colors.textPrimary}>
+                        Upcoming Appointments
+                      </Typography>
+                    </Box>
+                    <Grid container spacing={2}>
+                      {[1, 2, 3].map((i) => (
+                        <Grid item xs={12} key={i}>
+                          <Paper
+                            sx={{
+                              p: 2,
+                              bgcolor: colors.backgroundAlt,
+                              borderRadius: radius.card / 2,
+                              border: `1px solid ${colors.border}`,
+                            }}
+                          >
+                            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                              <Typography variant="subtitle2" fontWeight={600} color={colors.textPrimary}>
+                                Consultation {i}
+                              </Typography>
+                              <Chip label="Confirmed" size="small" sx={{ bgcolor: colors.success, color: 'white', fontWeight: 600, fontSize: '0.75rem' }} />
+                            </Box>
+                            <Typography variant="body2" color={colors.textSecondary} sx={{ mt: 0.5 }}>
+                              Today at {9 + i}:00 AM
                             </Typography>
-                            <Chip label="Confirmed" size="small" sx={{ bgcolor: colors.success, color: 'white', fontWeight: 600, fontSize: '0.75rem' }} />
-                          </Box>
-                          <Typography variant="body2" color={colors.textSecondary} sx={{ mt: 0.5 }}>
-                            Today at {9 + i}:00 AM
-                          </Typography>
-                        </Paper>
-                      </Grid>
-                    ))}
-                  </Grid>
-                </Paper>
-              </HoverGlow>
+                          </Paper>
+                        </Grid>
+                      ))}
+                    </Grid>
+                  </Paper>
+                </HoverGlow>
+              </Box>
             </Grid>
           </Grid>
         </Container>
       </Box>
+
+      {/* ========== REMAINING SECTIONS (UNCHANGED) ========== */}
 
       {/* Why Choose Appointo? – reveal-up with left-to-right stagger */}
       <Container maxWidth="lg" sx={{ py: 8 }} className="reveal-up">
@@ -858,15 +1011,34 @@ const Home: React.FC = () => {
         </Box>
       </GlassModal>
 
+      {/* Animation keyframes */}
       <style>{`
         @keyframes blink {
           0%, 100% { opacity: 1; }
           50% { opacity: 0; }
         }
         @keyframes float {
-          0% { transform: translateY(0px); }
+          0%, 100% { transform: translateY(0px); }
           50% { transform: translateY(-10px); }
-          100% { transform: translateY(0px); }
+        }
+        @keyframes gradientFlow {
+          0% { background-position: 0% 0%; }
+          25% { background-position: 100% 0%; }
+          50% { background-position: 100% 100%; }
+          75% { background-position: 0% 100%; }
+          100% { background-position: 0% 0%; }
+        }
+        @keyframes pulseGlow {
+          0%, 100% { opacity: 0.6; transform: scale(1); }
+          50% { opacity: 1; transform: scale(1.1); }
+        }
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(30px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes slideIn {
+          from { opacity: 0; transform: translateX(40px); }
+          to { opacity: 1; transform: translateX(0); }
         }
       `}</style>
     </Box>
